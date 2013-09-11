@@ -19,7 +19,7 @@ import net.sourceforge.zbar.*;
  * Time: 10:24 AM
  * To change this template use File | Settings | File Templates.
  */
-public class ZBarFragment extends Fragment implements Camera.PreviewCallback {
+public class ZBarFragment extends Fragment implements Camera.PreviewCallback, ZBarScanner {
     static final String TAG = "ZBarFragment";
     private CameraPreview preview;
     private Camera camera;
@@ -29,6 +29,31 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback {
     static
     {
         System.loadLibrary("iconv");
+    }
+
+    @Override
+    public void startScanning() {
+        // Open the default i.e. the first rear facing camera.
+        camera = Camera.open();
+        if(camera == null) {
+            // Cancel request if camera is null.
+            Log.e (TAG, "Unable to open camera.");
+            return;
+        }
+
+        preview.showSurfaceView(camera);
+    }
+
+    @Override
+    public void stopScanning() {
+        if (camera != null) {
+            preview.hideSurfaceView();
+            camera.cancelAutoFocus();
+            camera.setPreviewCallback(null);
+            camera.stopPreview();
+            camera.release();
+            camera = null;
+        }
     }
 
     public interface ResultListener
@@ -66,12 +91,7 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
-        // Create and configure the ImageScanner;
         setupScanner();
-
-        // Create a RelativeLayout container that will hold a SurfaceView,
-        // and set it as the content of our activity.
         preview = new CameraPreview (getActivity(), this);
     }
 
@@ -101,17 +121,7 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback {
     {
         super.onResume();
         Log.d (TAG, "Resuming " + TAG);
-
-        // Open the default i.e. the first rear facing camera.
-        camera = Camera.open();
-        if(camera == null) {
-            // Cancel request if camera is null.
-            Log.e (TAG, "Unable to open camera.");
-            return;
-        }
-
-        preview.setCamera(camera);
-        preview.showSurfaceView();
+        startScanning();
     }
 
     @Override
@@ -119,22 +129,7 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback {
     {
         super.onPause();
         Log.d (TAG, "Pausing " + TAG);
-
-        // Because the Camera object is a shared resource, it's very
-        // important to release it when the activity is paused.
-        if (camera != null) {
-            preview.setCamera(null);
-            camera.cancelAutoFocus();
-            camera.setPreviewCallback(null);
-            camera.stopPreview();
-            camera.release();
-
-            // According to Jason Kuang on http://stackoverflow.com/questions/6519120/how-to-recover-camera-preview-from-sleep,
-            // there might be surface recreation problems when the device goes to sleep. So lets just hide it and
-            // recreate on resume
-            preview.hideSurfaceView();
-            camera = null;
-        }
+        stopScanning();
     }
 
     @Override
@@ -149,11 +144,7 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback {
         int result = scanner.scanImage(barcode);
 
         if (result != 0) {
-            this.camera.cancelAutoFocus();
-            this.camera.setPreviewCallback(null);
-            this.camera.stopPreview();
-            this.preview.hideSurfaceView();
-            //this.camera.release ();
+            stopScanning();
 
             SymbolSet syms = scanner.getResults();
             Log.d (TAG, "Got some results, looking for non-empty string...");

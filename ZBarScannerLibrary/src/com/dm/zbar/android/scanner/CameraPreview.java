@@ -33,7 +33,6 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
     CameraPreview(Context context, PreviewCallback previewCallback) {
         super(context);
 
-        this.previewCallback = previewCallback;
         autoFocusCallback = new Camera.AutoFocusCallback()  {
             public void onAutoFocus(boolean success, Camera camera) {
                 mAutoFocusHandler.postDelayed(doAutoFocus, 1000);
@@ -48,6 +47,7 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
             }
         };
 
+        this.previewCallback = previewCallback;
         surfaceView = new SurfaceView(context);
         addView(surfaceView);
 
@@ -59,16 +59,9 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
     }
 
-    public void setCamera(Camera camera) {
-        mCamera = camera;
-        if (mCamera != null) {
-            supportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
-            requestLayout();
-        }
-    }
-
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+    {
         // We purposely disregard child measurements because act as a
         // wrapper to a SurfaceView that centers the camera preview instead
         // of stretching it.
@@ -82,7 +75,8 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
     }
 
     @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+    protected void onLayout(boolean changed, int l, int t, int r, int b)
+    {
         if (changed && getChildCount() > 0) {
             final View child = getChildAt(0);
 
@@ -110,11 +104,18 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
     }
 
     public void hideSurfaceView() {
+        mCamera = null;
         surfaceView.setVisibility(View.INVISIBLE);
         previewing = false;
     }
 
-    public void showSurfaceView() {
+    public void showSurfaceView(Camera camera) {
+        mCamera = camera;
+        if (camera != null) {
+            supportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
+            requestLayout();
+        }
+
         surfaceView.setVisibility(View.VISIBLE);
         previewing = true;
     }
@@ -138,7 +139,6 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
             mCamera.stopPreview();
         }
     }
-
 
     private Size getOptimalPreviewSize(List<Size> sizes, int w, int h) {
         final double ASPECT_TOLERANCE = 0.1;
