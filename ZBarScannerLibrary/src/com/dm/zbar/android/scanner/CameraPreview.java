@@ -2,9 +2,9 @@ package com.dm.zbar.android.scanner;
 
 import android.content.Context;
 import android.hardware.Camera;
-import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
+import android.os.Handler;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -14,35 +14,55 @@ import java.io.IOException;
 import java.util.List;
 
 class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
-    private final String TAG = "CameraPreview";
+    private final String TAG = ZBarFragment.TAG;
+    private boolean previewing = true;
 
-    SurfaceView mSurfaceView;
-    SurfaceHolder mHolder;
-    Size mPreviewSize;
-    List<Size> mSupportedPreviewSizes;
+    SurfaceView surfaceView;
+    SurfaceHolder surfaceHolder;
+
+    Size previewSize;
+    List<Size> supportedPreviewSizes;
+
     Camera mCamera;
-    PreviewCallback mPreviewCallback;
-    AutoFocusCallback mAutoFocusCallback;
+    PreviewCallback previewCallback;
 
-    CameraPreview(Context context, PreviewCallback previewCallback, AutoFocusCallback autoFocusCb) {
+    Handler mAutoFocusHandler;
+    Camera.AutoFocusCallback autoFocusCallback;
+    private Runnable doAutoFocus;
+
+    CameraPreview(Context context, PreviewCallback previewCallback) {
         super(context);
 
-        mPreviewCallback = previewCallback;
-        mAutoFocusCallback = autoFocusCb;
-        mSurfaceView = new SurfaceView(context);
-        addView(mSurfaceView);
+        this.previewCallback = previewCallback;
+        autoFocusCallback = new Camera.AutoFocusCallback()  {
+            public void onAutoFocus(boolean success, Camera camera) {
+                mAutoFocusHandler.postDelayed(doAutoFocus, 1000);
+            }
+        };
 
+        doAutoFocus = new Runnable() {
+            public void run() {
+                if(mCamera != null && previewing) {
+                    mCamera.autoFocus(autoFocusCallback);
+                }
+            }
+        };
+
+        surfaceView = new SurfaceView(context);
+        addView(surfaceView);
+
+        mAutoFocusHandler = new Handler();
         // Install a SurfaceHolder.Callback so we get notified when the
         // underlying surface is created and destroyed.
-        mHolder = mSurfaceView.getHolder();
-        mHolder.addCallback(this);
-        mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        surfaceHolder = surfaceView.getHolder();
+        surfaceHolder.addCallback(this);
+        surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
     }
 
     public void setCamera(Camera camera) {
         mCamera = camera;
         if (mCamera != null) {
-            mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
+            supportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
             requestLayout();
         }
     }
@@ -56,8 +76,8 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
         final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
         setMeasuredDimension(width, height);
 
-        if (mSupportedPreviewSizes != null) {
-            mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
+        if (supportedPreviewSizes != null) {
+            previewSize = getOptimalPreviewSize(supportedPreviewSizes, width, height);
         }
     }
 
@@ -71,9 +91,9 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
 
             int previewWidth = width;
             int previewHeight = height;
-            if (mPreviewSize != null) {
-                previewWidth = mPreviewSize.width;
-                previewHeight = mPreviewSize.height;
+            if (previewSize != null) {
+                previewWidth = previewSize.width;
+                previewHeight = previewSize.height;
             }
 
             // Center the child SurfaceView within the parent.
@@ -90,11 +110,13 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
     }
 
     public void hideSurfaceView() {
-        mSurfaceView.setVisibility(View.INVISIBLE);
+        surfaceView.setVisibility(View.INVISIBLE);
+        previewing = false;
     }
 
     public void showSurfaceView() {
-        mSurfaceView.setVisibility(View.VISIBLE);
+        surfaceView.setVisibility(View.VISIBLE);
+        previewing = true;
     }
 
     public void surfaceCreated(SurfaceHolder holder) {
@@ -153,22 +175,21 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
 
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
         if (holder.getSurface() == null){
-          // preview surface does not exist
-          return;
+            // preview surface does not exist
+            return;
         }
 
         if (mCamera != null) {
             // Now that the size is known, set up the camera parameters and begin
             // the preview.
             Camera.Parameters parameters = mCamera.getParameters();
-            parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+            parameters.setPreviewSize(previewSize.width, previewSize.height);
             requestLayout();
 
             mCamera.setParameters(parameters);
-            mCamera.setPreviewCallback(mPreviewCallback);
+            mCamera.setPreviewCallback(previewCallback);
             mCamera.startPreview();
-            mCamera.autoFocus(mAutoFocusCallback);
+            mCamera.autoFocus(autoFocusCallback);
         }
     }
-
 }
