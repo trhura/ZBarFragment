@@ -10,4 +10,5 @@ package com.trhura.android.zbar.scanner;
 public interface ZBarScanner {
     public void startScanning ();
     public void stopScanning ();
+    public boolean isScanning ();
 }

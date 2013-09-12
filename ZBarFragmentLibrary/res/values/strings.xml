@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ZBar Scanner</string>
+    <string name="scan_label">Tap to start scanning.</string>
+    <string name="result_label">Scanning result = </string>
 </resources>
