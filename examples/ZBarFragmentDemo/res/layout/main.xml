@@ -10,7 +10,10 @@
             android:layout_height="wrap_content"
             android:text="@string/scan_label"
             android:minHeight="30dp"
-            android:id="@+id/scan_label" android:gravity="center"/>
+            android:id="@+id/scan_label"
+            android:gravity="center"
+            android:textColor="#333333"
+            android:background="#CECECE" android:textSize="16dp"/>
 
     <fragment android:name="com.trhura.android.zbar.scanner.ZBarFragment"
               android:id="@+id/scan_fragment"

@@ -2,6 +2,7 @@ package com.trhura.android.zbar.examples;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -23,6 +24,9 @@ public class MainActivity extends FragmentActivity implements ZBarFragment.Resul
         super.onCreate(savedInstanceState);
         gestureDetector = new GestureDetector(this, new GestureListener());
         setContentView(R.layout.main);
+
+        FragmentManager manager = getSupportFragmentManager();
+        scanner = (ZBarScanner) manager.findFragmentById(R.id.scan_fragment);
     }
 
     @Override
@@ -30,11 +34,8 @@ public class MainActivity extends FragmentActivity implements ZBarFragment.Resul
     {
         super.onResume();
         setLabel(getString(R.string.scan_label));
-        scanner = (ZBarScanner) getSupportFragmentManager().
-                                findFragmentById(R.id.scan_fragment);
 
-        // FIXME:
-        scanner.startScanning();
+        // start scanning only after a tap
         scanner.stopScanning();
     }
 
@@ -44,18 +45,19 @@ public class MainActivity extends FragmentActivity implements ZBarFragment.Resul
         super.onResume();
         if (scanner != null && scanner.isScanning())
             scanner.stopScanning();
-
     }
 
     @Override
     public void onResult(String result) {
-        setLabel("Result = " + result);
+        setLabel(getString(R.string.scan_result_label) + result);
+        gestureDetector = null; // disable single tap while showing result
 
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                setLabel(getString(R.string.scan_label));
+                setLabel(getString(R.string.scan_label) + " again");
+                gestureDetector = new GestureDetector(MainActivity.this, new GestureListener());
             }
         }, 3 * 1000);
     }
@@ -63,7 +65,10 @@ public class MainActivity extends FragmentActivity implements ZBarFragment.Resul
     @Override
     public boolean onTouchEvent (MotionEvent e)
     {
-        return gestureDetector.onTouchEvent (e);
+        if (gestureDetector != null)
+            return gestureDetector.onTouchEvent (e);
+
+        return super.onTouchEvent(e);
     }
 
     private void setLabel (String label)
@@ -82,6 +87,7 @@ public class MainActivity extends FragmentActivity implements ZBarFragment.Resul
 
             Log.d(TAG, "Ok, start scanning.");
             scanner.startScanning();
+            setLabel(getString(R.string.scanning_label));
             return true;
         }
     }

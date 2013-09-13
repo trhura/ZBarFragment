@@ -33,10 +33,8 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback, ZB
 
     @Override
     public void startScanning() {
-        // Open the default i.e. the first rear facing camera.
         camera = Camera.open();
-        if(camera == null) {
-            // Cancel request if camera is null.
+        if (camera == null) {
             Log.e (TAG, "Unable to open camera.");
             return;
         }
@@ -96,8 +94,8 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback, ZB
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setupScanner();
         preview = new CameraPreview (getActivity(), this);
+        setupScanner();
     }
 
     @Override
@@ -119,6 +117,14 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback, ZB
                 scanner.setConfig(symbol, Config.ENABLE, 1);
             }
         }*/
+    }
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        Log.d (TAG, "Starting Fragment" + TAG);
+        startScanning();
     }
 
     @Override

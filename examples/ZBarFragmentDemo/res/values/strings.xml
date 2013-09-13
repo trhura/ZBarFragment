@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ZBar Fragment Demo</string>
-    <string name="scan">Scan</string>
-    <string name="scan_only_qr_codes">Scan only QR Codes</string>
-    <string name="scan_label">Tap to start scanning.</string>
+    <string name="scan_label">Tap screen to start scanning</string>
+    <string name="scanning_label">Scanning for barcodes ...</string>
+    <string name="scan_result_label">Scan result = </string>
 </resources>
