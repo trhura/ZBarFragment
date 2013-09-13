@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="scan_label_background">#ECECEC</color>
+    <color name="scan_label_foreground">#000000</color>
+</resources>

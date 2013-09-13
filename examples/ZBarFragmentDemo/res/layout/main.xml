@@ -13,12 +13,23 @@
             android:id="@+id/scan_label"
             android:gravity="center"
             android:textColor="#333333"
-            android:background="#CECECE" android:textSize="16dp"/>
-
-    <fragment android:name="com.trhura.android.zbar.scanner.ZBarFragment"
-              android:id="@+id/scan_fragment"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"/>
+            android:background="@color/scan_label_background" android:textSize="16dp"/>
+    <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:id="@+id/overlay_frame">
+        <fragment android:name="com.trhura.android.zbar.scanner.ZBarFragment"
+                  android:id="@+id/scan_fragment"
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent" android:layout_alignParentTop="false"
+                  android:layout_alignParentLeft="false" android:layout_alignParentRight="false"
+                  android:layout_alignWithParentIfMissing="false" android:layout_alignParentBottom="false"/>
+        <com.trhura.android.zbar.examples.OverlayRectangleView
+                android:id="@+id/overlay_rectangle"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" android:layout_alignTop="@+id/scan_fragment"
+                android:layout_alignBottom="@+id/scan_fragment" android:layout_alignLeft="@+id/scan_fragment"
+                android:layout_alignRight="@+id/scan_fragment"/>
+    </RelativeLayout>
 
 </LinearLayout>
 

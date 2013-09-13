@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.TextView;
 import android.support.v4.app.FragmentActivity;
 import com.trhura.android.zbar.scanner.ZBarFragment;
@@ -37,6 +38,7 @@ public class MainActivity extends FragmentActivity implements ZBarFragment.Resul
         setLabel(getString(R.string.scan_label));
 
         // start scanning only after a tap
+        hideOverlay();
         scanner.stopScanning();
     }
 
@@ -44,12 +46,15 @@ public class MainActivity extends FragmentActivity implements ZBarFragment.Resul
     public void onPause()
     {
         super.onResume();
-        if (scanner != null && scanner.isScanning())
+
+        if (scanner != null && scanner.isScanning()) {
             scanner.stopScanning();
+        }
     }
 
     @Override
     public void onResult(String result) {
+        hideOverlay();
         setLabel(getString(R.string.scan_result_label) + result);
         gestureDetector = null; // disable single tap while showing result
 
@@ -78,6 +83,18 @@ public class MainActivity extends FragmentActivity implements ZBarFragment.Resul
         labelview.setText(label);
     }
 
+    private void hideOverlay ()
+    {
+        View overlay = findViewById(R.id.overlay_rectangle);
+        overlay.setVisibility(View.INVISIBLE);
+    }
+
+    private void showOverlay ()
+    {
+        View overlay = findViewById(R.id.overlay_rectangle);
+        overlay.setVisibility(View.VISIBLE);
+    }
+
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onSingleTapConfirmed (MotionEvent e)
@@ -86,9 +103,11 @@ public class MainActivity extends FragmentActivity implements ZBarFragment.Resul
             if (scanner == null || scanner.isScanning())
                 return false;
 
-            Log.d(TAG, "Ok, start scanning.");
+            showOverlay();
             scanner.startScanning();
             setLabel(getString(R.string.scanning_label));
+            Log.d(TAG, "Ok, scanning now.");
+
             return true;
         }
     }

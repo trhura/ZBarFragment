@@ -1,6 +1,9 @@
 package com.trhura.android.zbar.scanner;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
@@ -103,43 +106,6 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
         }
     }
 
-    public void hideSurfaceView() {
-        mCamera = null;
-        surfaceView.setVisibility(View.INVISIBLE);
-        previewing = false;
-    }
-
-    public void showSurfaceView(Camera camera) {
-        mCamera = camera;
-        if (camera != null) {
-            supportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
-            requestLayout();
-        }
-
-        surfaceView.setVisibility(View.VISIBLE);
-        previewing = true;
-    }
-
-    public void surfaceCreated(SurfaceHolder holder) {
-        // The Surface has been created, acquire the camera and tell it where
-        // to draw.
-        try {
-            if (mCamera != null) {
-                mCamera.setPreviewDisplay(holder);
-            }
-        } catch (IOException exception) {
-            Log.e(TAG, "IOException caused by setPreviewDisplay()", exception);
-        }
-    }
-
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        // Surface will be destroyed when we return, so stop the preview.
-        if (mCamera != null) {
-            mCamera.cancelAutoFocus();
-            mCamera.stopPreview();
-        }
-    }
-
     private Size getOptimalPreviewSize(List<Size> sizes, int w, int h) {
         final double ASPECT_TOLERANCE = 0.1;
         double targetRatio = (double) w / h;
@@ -173,6 +139,43 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
         return optimalSize;
     }
 
+    public void showSurfaceView(Camera camera) {
+        mCamera = camera;
+        if (camera != null) {
+            supportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
+            requestLayout();
+        }
+
+        surfaceView.setVisibility(View.VISIBLE);
+        previewing = true;
+    }
+
+    public void hideSurfaceView() {
+        mCamera = null;
+        surfaceView.setVisibility(View.INVISIBLE);
+        previewing = false;
+    }
+
+    public void surfaceCreated(SurfaceHolder holder) {
+        // The Surface has been created, acquire the camera and tell it where
+        // to draw.
+        try {
+            if (mCamera != null) {
+                mCamera.setPreviewDisplay(holder);
+            }
+        } catch (IOException exception) {
+            Log.e(TAG, "IOException caused by setPreviewDisplay()", exception);
+        }
+    }
+
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        // Surface will be destroyed when we return, so stop the preview.
+        if (mCamera != null) {
+            mCamera.cancelAutoFocus();
+            mCamera.stopPreview();
+        }
+    }
+
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
         if (holder.getSurface() == null){
             // preview surface does not exist
@@ -192,4 +195,5 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
             mCamera.autoFocus(autoFocusCallback);
         }
     }
+
 }
