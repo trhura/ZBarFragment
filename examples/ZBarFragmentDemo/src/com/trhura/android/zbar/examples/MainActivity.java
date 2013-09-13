@@ -26,7 +26,8 @@ public class MainActivity extends FragmentActivity implements ZBarFragment.Resul
         setContentView(R.layout.main);
 
         FragmentManager manager = getSupportFragmentManager();
-        scanner = (ZBarScanner) manager.findFragmentById(R.id.scan_fragment);
+        ZBarFragment fragment = (ZBarFragment) manager.findFragmentById(R.id.scan_fragment);
+        scanner = fragment.getScanner();
     }
 
     @Override

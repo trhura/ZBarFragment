@@ -54,6 +54,10 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback, ZB
         }
     }
 
+    public ZBarScanner getScanner(){
+        return (ZBarScanner) this;
+    }
+
     @Override
     public boolean isScanning() {
         return (camera != null);
@@ -131,7 +135,7 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback, ZB
     public void onResume()
     {
         super.onResume();
-        Log.d (TAG, "Resuming Fragment" + TAG);
+        Log.d(TAG, "Resuming Fragment" + TAG);
     }
 
     @Override
