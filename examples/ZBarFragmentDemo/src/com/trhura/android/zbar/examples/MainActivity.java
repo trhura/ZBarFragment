@@ -9,6 +9,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.support.v4.app.FragmentActivity;
+import com.trhura.android.zbar.scanner.ZBarConstants;
 import com.trhura.android.zbar.scanner.ZBarFragment;
 import com.trhura.android.zbar.scanner.ZBarScanner;
 
@@ -29,6 +30,9 @@ public class MainActivity extends FragmentActivity implements ZBarFragment.Resul
         FragmentManager manager = getSupportFragmentManager();
         ZBarFragment fragment = (ZBarFragment) manager.findFragmentById(R.id.scan_fragment);
         scanner = fragment.getScanner();
+
+        int[] modes = new int[] {ZBarConstants.CODE128, ZBarConstants.QRCODE};
+        scanner.setModes(modes);
     }
 
     @Override

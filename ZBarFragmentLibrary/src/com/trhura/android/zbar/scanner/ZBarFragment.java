@@ -63,6 +63,16 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback, ZB
         return (camera != null);
     }
 
+    @Override
+    public void setModes (int[] modes) {
+        if (modes != null) {
+            scanner.setConfig(Symbol.NONE, Config.ENABLE, 0);
+            for (int mode : modes) {
+                scanner.setConfig(mode, Config.ENABLE, 1);
+            }
+        }
+    }
+
     public interface ResultListener
     {
         public void onResult(String result);
@@ -113,15 +123,8 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback, ZB
         scanner = new ImageScanner();
         scanner.setConfig(0, Config.X_DENSITY, 3);
         scanner.setConfig(0, Config.Y_DENSITY, 3);
-
-/*        int[] symbols = getIntent().getIntArrayExtra(SCAN_MODES);
-        if (symbols != null) {
-            scanner.setConfig(Symbol.NONE, Config.ENABLE, 0);
-            for (int symbol : symbols) {
-                scanner.setConfig(symbol, Config.ENABLE, 1);
-            }
-        }*/
     }
+
 
     @Override
     public void onStart()
