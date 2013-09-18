@@ -17,7 +17,7 @@ Usage
     android:layout_height="fill_parent">
 
 	.......
-	
+
     <fragment android:name="com.trhura.android.zbar.scanner.ZBarFragment"
               android:id="@+id/scan_fragment"
               android:layout_width="fill_parent"
@@ -35,11 +35,18 @@ public interface ZBarScanner {
     public void startScanning ();
     public void stopScanning ();
     public boolean isScanning ();
+    public void setModes(int[] modes);
 }
 ```
 
 * `ZBarFragment` will start scanning onStart, you may want to call `startScanning` / `stopScanning` methods in your Activity `onResume` / `onPause` cycles. See the example app for more details.
 
+* Use `setModes` function to change scan modes. For example, to scan only QR and code128 barcodes –
+
+```java
+        int[] modes = new int[] {ZBarConstants.CODE128, ZBarConstants.QRCODE};
+        scanner.setModes(modes);
+```
 
 Credits
 =======
