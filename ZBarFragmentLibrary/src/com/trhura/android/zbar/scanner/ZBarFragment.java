@@ -33,9 +33,30 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback, ZB
 
     @Override
     public void startScanning() {
+        /* try opening the default camera */
+        camera = null;
         camera = Camera.open();
+
         if (camera == null) {
-            Log.e (TAG, "Unable to open camera.");
+            Log.w (TAG, "Unable to open default camera.");
+
+            /* open any camera */
+            Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+            int cameraCount = Camera.getNumberOfCameras();
+
+            for ( int i = 0; i < cameraCount; i++ ) {
+                try {
+                    camera = Camera.open(i);
+                    break;
+                } catch (RuntimeException e) {
+                    Log.w (TAG, "Camera failed to open: " + e.getLocalizedMessage());
+                }
+            }
+        }
+
+        /* camera still null? probably no camera */
+        if (camera == null) {
+            Log.e (TAG, "Unable to open any camera");
             return;
         }
 
@@ -85,7 +106,7 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback, ZB
 
         /* Check whether there is a camera available */
         PackageManager pm  = activity.getPackageManager();
-        Boolean has_camera = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA);
+        Boolean has_camera = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY);
 
         if (!has_camera) {
             Log.e(TAG, "The system must have camera feature.");
