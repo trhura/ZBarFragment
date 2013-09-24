@@ -34,7 +34,6 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback, ZB
     @Override
     public void startScanning() {
         /* try opening the default camera */
-        camera = null;
         camera = Camera.open();
 
         if (camera == null) {
@@ -64,7 +63,7 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback, ZB
     }
 
     @Override
-    public void stopScanning() {
+    public synchronized void stopScanning() {
         if (camera != null) {
             preview.hideSurfaceView();
             camera.cancelAutoFocus();
@@ -167,6 +166,9 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback, ZB
     {
         super.onPause();
         Log.d (TAG, "Pausing Fragment" + TAG);
+
+        /* In case, the activity forgets to stop */
+        stopScanning();
     }
 
     @Override
