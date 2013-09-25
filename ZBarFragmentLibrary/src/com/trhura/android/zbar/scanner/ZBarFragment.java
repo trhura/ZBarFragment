@@ -103,16 +103,7 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback, ZB
     {
         super.onAttach(activity);
 
-        /* Check whether there is a camera available */
-        PackageManager pm  = activity.getPackageManager();
-        Boolean has_camera = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY);
-
-        if (!has_camera) {
-            Log.e(TAG, "The system must have camera feature.");
-            throw new RuntimeException(
-                    "The system must have camera feature."
-            );
-        }
+        /* TODO: Check whether there is a camera available */
 
         if (!(activity instanceof ResultListener)) {
             Log.e (TAG, "The attached activity must implement ResultListener.");
