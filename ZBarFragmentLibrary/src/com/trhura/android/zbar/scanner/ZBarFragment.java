@@ -59,6 +59,26 @@ public class ZBarFragment extends Fragment implements Camera.PreviewCallback, ZB
             return;
         }
 
+        /* Changed Parameters */
+
+        try {
+            Camera.Parameters parameters = camera.getParameters();
+            parameters.setSceneMode(Camera.Parameters.SCENE_MODE_BARCODE);
+            camera.setParameters(parameters);
+        } catch (Exception e){
+            Log.w (TAG, "SceneMode Barcode Failed: " + e.getMessage());
+        }
+
+        try {
+            Camera.Parameters parameters = camera.getParameters();
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
+            camera.setParameters(parameters);
+        } catch (Exception e){
+            Log.w (TAG, "Focus Mode MACRO Failed: " + e.getMessage());
+        }
+
+
+        /* show preview */
         preview.showSurfaceView(camera);
     }
 
